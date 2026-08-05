@@ -1,10 +1,10 @@
 import { CalendarRange } from "lucide-react";
 import { Segmented } from "./ui";
-import type { RangeKey } from "@/data/mock";
+// type RangeKey is removed as it was only for mock data
 
 export type DateFilterValue = "today" | "week" | "month" | "year" | "custom";
 
-export const filterToRange: Record<DateFilterValue, RangeKey> = {
+export const filterToRange: Record<DateFilterValue, "daily" | "weekly" | "monthly" | "yearly"> = {
   today: "daily",
   week: "weekly",
   month: "monthly",

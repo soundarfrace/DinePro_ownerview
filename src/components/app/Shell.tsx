@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Bell, UtensilsCrossed } from "lucide-react";
-import { restaurant } from "@/data/mock";
+import { UtensilsCrossed } from "lucide-react";
+const restaurant = { owner: { name: "Aarav Mehta", email: "aarav@lumieregroup.com" } };
 import { Chip } from "./ui";
 
 export function Shell({
@@ -29,13 +29,7 @@ export function Shell({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <button
-            aria-label="Notifications"
-            className="press glass relative grid size-10 place-items-center rounded-2xl"
-          >
-            <Bell className="size-[18px] text-muted-foreground" />
-            <span className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-primary" />
-          </button>
+
           <div className="press bg-gradient-gold grid size-10 place-items-center rounded-2xl text-sm font-bold text-primary-foreground">
             AM
           </div>
@@ -47,11 +41,7 @@ export function Shell({
             {eyebrow}
           </p>
           <h1 className="truncate text-[22px] font-bold text-gradient-gold">{title}</h1>
-          <div className="mt-1.5 flex items-center gap-1.5">
-            <Chip tone="gold">{restaurant.name}</Chip>
-            <Chip tone="aqua">{restaurant.branch}</Chip>
-            <Chip tone="success">Live</Chip>
-          </div>
+
         </div>
       </header>
       {children}

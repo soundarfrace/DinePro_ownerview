@@ -88,7 +88,7 @@ function RootComponent() {
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
       </div>
-      <BottomNav />
+      {pathname !== "/" && <BottomNav />}
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
