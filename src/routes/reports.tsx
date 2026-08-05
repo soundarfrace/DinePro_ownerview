@@ -77,6 +77,8 @@ function Reports() {
     kpisData: null as any,
     prevRevenueData: [] as any[],
     prevKpisData: null as any,
+    categoryMixData: [] as any[],
+    hourlyEfficiencyData: [] as any[],
   });
 
   useEffect(() => {
@@ -152,7 +154,9 @@ function Reports() {
         const baseUrl = import.meta.env['VITE_API_URL'] || "http://localhost:5000/api";
         const promises = [
           fetch(`${baseUrl}/dashboard/kpis?${queryParams}`).then(res => res.json()),
-          fetch(`${baseUrl}/dashboard/revenue?${queryParams}`).then(res => res.json())
+          fetch(`${baseUrl}/dashboard/revenue?${queryParams}`).then(res => res.json()),
+          fetch(`${baseUrl}/dashboard/category-mix?${queryParams}`).then(res => res.json()),
+          fetch(`${baseUrl}/dashboard/hourly-efficiency?${queryParams}`).then(res => res.json())
         ];
 
         if (compareMode) {
@@ -168,13 +172,15 @@ function Reports() {
           );
         }
 
-        const [kpisRes, revRes, prevKpisRes, prevRevRes] = await Promise.all(promises);
+        const [kpisRes, revRes, catMixRes, hourlyEffRes, prevKpisRes, prevRevRes] = await Promise.all(promises);
         
         setData({
           kpisData: kpisRes.data || {},
           revenueData: revRes.data?.daily || [],
           prevKpisData: prevKpisRes?.data || null,
           prevRevenueData: prevRevRes?.data?.daily || [],
+          categoryMixData: catMixRes?.data || [],
+          hourlyEfficiencyData: hourlyEffRes?.data || [],
         });
       } catch (e) {
         console.error(e);
@@ -290,6 +296,31 @@ function Reports() {
               <AreaTrend data={series} />
             )}
           </Panel>
+
+          {data.categoryMixData.length > 0 && (
+            <Panel>
+              <SectionHeader title="Category Mix" subtitle="Revenue by menu category" />
+              <div className="mt-2">
+                <DonutChart data={data.categoryMixData} nameKey="category" valueKey="revenue" />
+                <Legend
+                  items={data.categoryMixData.map((d: any) => ({
+                    label: d.category,
+                    value: currency(d.revenue),
+                  }))}
+                />
+              </div>
+            </Panel>
+          )}
+
+          {data.hourlyEfficiencyData.length > 0 && (
+            <Panel>
+              <SectionHeader title="Peak Hours & Efficiency" subtitle="Order volume by hour of day" />
+              <BarsChart 
+                data={data.hourlyEfficiencyData} 
+                keys={[{ key: "orders", color: "var(--chart-3)" }]} 
+              />
+            </Panel>
+          )}
 
           <div className="grid grid-cols-2 gap-2.5">
             <button

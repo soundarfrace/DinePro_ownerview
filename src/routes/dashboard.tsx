@@ -108,6 +108,7 @@ function Dashboard() {
     revenueData: [] as any[],
     recentOrdersData: [] as any[],
     topItemsData: [] as any[],
+    paymentMixData: [] as any[],
   });
 
   useEffect(() => {
@@ -166,11 +167,12 @@ function Dashboard() {
         }).toString();
         
         const baseUrl = import.meta.env['VITE_API_URL'] || "http://localhost:5000/api";
-        const [kpisRes, revRes, ordersRes, itemsRes] = await Promise.all([
+        const [kpisRes, revRes, ordersRes, itemsRes, paymentRes] = await Promise.all([
           fetch(`${baseUrl}/dashboard/kpis?${queryParams}`).then(res => res.json()),
           fetch(`${baseUrl}/dashboard/revenue?${queryParams}`).then(res => res.json()),
           fetch(`${baseUrl}/dashboard/recent-orders?${queryParams}`).then(res => res.json()),
           fetch(`${baseUrl}/dashboard/top-items?${queryParams}`).then(res => res.json()),
+          fetch(`${baseUrl}/dashboard/payment-mix?${queryParams}`).then(res => res.json()),
         ]);
 
         setData({
@@ -178,6 +180,7 @@ function Dashboard() {
           revenueData: revRes.data?.daily || [],
           recentOrdersData: ordersRes.data || [],
           topItemsData: itemsRes.data || [],
+          paymentMixData: paymentRes.data || [],
         });
       } catch (e) {
         console.error(e);
@@ -238,7 +241,7 @@ function Dashboard() {
             </div>
             <p className="mt-2 text-[11px] text-muted-foreground">
               {summary.orders.toLocaleString("en-IN")} orders · avg ticket{" "}
-              {currency(summary.avgTicket)} · 27 tables live
+              {currency(summary.avgTicket)}
             </p>
             <div className="mt-4">
               <AreaTrend data={data.revenueData} height={92} />
@@ -274,6 +277,21 @@ function Dashboard() {
             />
             <AreaTrend data={data.revenueData} />
           </Panel>
+
+          {data.paymentMixData.length > 0 && (
+            <Panel>
+              <SectionHeader title="Payment Mix" subtitle="Revenue by payment method" />
+              <div className="mt-2">
+                <DonutChart data={data.paymentMixData} nameKey="paymode" valueKey="amount" />
+                <Legend
+                  items={data.paymentMixData.map((d) => ({
+                    label: d.paymode,
+                    value: currency(d.amount),
+                  }))}
+                />
+              </div>
+            </Panel>
+          )}
 
           {data.topItemsData.length > 0 && (
             <Panel>

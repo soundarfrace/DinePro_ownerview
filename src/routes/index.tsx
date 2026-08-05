@@ -63,8 +63,13 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div className="relative flex h-screen w-full overflow-hidden items-center justify-center bg-background px-4">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center select-none">
+        <h1 className="text-[20vw] font-black text-foreground/[0.03] tracking-tighter whitespace-nowrap">
+          DinePro
+        </h1>
+      </div>
+      <div className="relative z-10 w-full max-w-sm">
         <div className="rounded-3xl border border-border bg-secondary/30 p-6 shadow-xl backdrop-blur-xl">
           <h2 className="mb-1 text-lg font-bold">Sign In</h2>
           <p className="mb-6 text-sm text-muted-foreground">
@@ -74,7 +79,7 @@ function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
-                Username
+                Username <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -87,7 +92,7 @@ function LoginPage() {
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <label className="block text-xs font-semibold text-muted-foreground">
-                  Password
+                  Password <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="relative">

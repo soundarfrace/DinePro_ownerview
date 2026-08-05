@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { UtensilsCrossed } from "lucide-react";
 const restaurant = { owner: { name: "Aarav Mehta", email: "aarav@lumieregroup.com" } };
 import { Chip } from "./ui";
@@ -12,6 +12,26 @@ export function Shell({
   eyebrow: string;
   children: ReactNode;
 }) {
+  const [initials, setInitials] = useState("AM");
+
+  useEffect(() => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user.username || user.name) {
+          const name = (user.username || user.name).toUpperCase();
+          const parts = name.split(" ");
+          if (parts.length >= 2) {
+            setInitials(parts[0][0] + parts[1][0]);
+          } else {
+            setInitials(name.substring(0, 2));
+          }
+        }
+      }
+    } catch (e) {}
+  }, []);
+
   return (
     <div className="mx-auto min-h-screen w-full max-w-[520px] px-4 pt-5 pb-28">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -31,7 +51,7 @@ export function Shell({
         <div className="flex shrink-0 items-center gap-2">
 
           <div className="press bg-gradient-gold grid size-10 place-items-center rounded-2xl text-sm font-bold text-primary-foreground">
-            AM
+            {initials}
           </div>
         </div>
       </div>
