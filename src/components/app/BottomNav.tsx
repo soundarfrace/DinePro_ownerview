@@ -13,7 +13,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-      <ul className="glass-nav flex items-center gap-1 rounded-full p-1.5">
+      <ul className="glass-nav flex items-center gap-8 rounded-full p-2 px-4">
         {tabs.map(({ to, label, icon: Icon }) => {
           const active = pathname === to;
           return (

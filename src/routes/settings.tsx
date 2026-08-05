@@ -64,7 +64,7 @@ const groups: { title: string; items: Item[] }[] = [
       { label: "Help & Support", hint: "24/7 enterprise desk", icon: HelpCircle },
       { label: "Privacy Policy", icon: ShieldCheck },
       { label: "Terms & Conditions", icon: ScrollText },
-      { label: "App Version", hint: "v4.2.1 (build 2261)", icon: Info },
+      { label: "App Version", hint: "v3.4.1", icon: Info },
     ],
   },
 ];
@@ -124,7 +124,6 @@ function SettingsPage() {
               {g.items.map(({ label, hint, icon: Icon }) => (
                 <li key={label}>
                   <button
-                    onClick={() => toast(label, { description: hint ?? "Mock settings screen" })}
                     className="press grid w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-3 py-3 text-left"
                   >
                     <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
@@ -151,10 +150,6 @@ function SettingsPage() {
         >
           <LogOut className="size-4" /> Logout
         </button>
-
-        <p className="flex items-center justify-center gap-1.5 pb-2 text-center text-[10px] text-muted-foreground">
-          <FileText className="size-3" /> DinePro Owner v4.2.1 · mock data preview
-        </p>
       </div>
     </Shell>
   );

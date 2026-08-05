@@ -140,7 +140,7 @@ export function BarsChart({
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data as Row[]} margin={{ top: 6, right: 4, left: -14, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 5" stroke="var(--border)" vertical={false} />
-        <XAxis dataKey={xKey} {...axis} interval={0} />
+        <XAxis dataKey={xKey} {...axis} />
         <YAxis {...axis} width={38} tickFormatter={compact} />
         <Tooltip {...tooltipStyle} cursor={{ fill: "var(--secondary)", opacity: 0.4 }} />
         {keys.map((k) => (
