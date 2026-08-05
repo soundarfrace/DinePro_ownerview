@@ -28,6 +28,15 @@ import {
   SectionHeader,
 } from "@/components/app/ui";
 import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
   DateFilter,
   filterToRange,
   type DateFilterValue,
@@ -98,7 +107,32 @@ const exportToCSV = (filename: string, rows: Record<string, any>[]) => {
 
 function Dashboard() {
   const [loading, setLoading] = useState(true);
+  const [showAllItems, setShowAllItems] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [invoiceDetails, setInvoiceDetails] = useState<any>(null);
   const [filter, setFilter] = useState<DateFilterValue>("today");
+
+  useEffect(() => {
+    if (selectedInvoiceId) {
+      const fetchInvoice = async () => {
+        try {
+          const accountCode = localStorage.getItem("accountCode") || "C001";
+          const retailCode = localStorage.getItem("retailCode") || "R001";
+          const url = import.meta.env['VITE_API_URL'] || "http://localhost:5000/api";
+          const res = await fetch(`${url}/billing/${selectedInvoiceId}?accountCode=${accountCode}&retailCode=${retailCode}`);
+          const json = await res.json();
+          if (json.success) {
+            setInvoiceDetails(json.data);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchInvoice();
+    } else {
+      setInvoiceDetails(null);
+    }
+  }, [selectedInvoiceId]);
   const [from, setFrom] = useState("2026-07-01");
   const [to, setTo] = useState("2026-08-05");
   const navigate = useNavigate();
@@ -213,6 +247,7 @@ function Dashboard() {
   const paymentMix: any[] = [];
 
   return (
+    <>
     <Shell eyebrow="Owner Console" title="Business Overview">
       <div className="mb-3">
         <DateFilter
@@ -297,7 +332,9 @@ function Dashboard() {
             <Panel>
               <SectionHeader title="Top Selling Items" subtitle="By revenue contribution today" />
               <ul className="space-y-3">
-                {data.topItemsData.map((item) => (
+                {data.topItemsData
+                  .slice(0, showAllItems ? undefined : 10)
+                  .map((item) => (
                   <li key={item.name} className="flex items-center gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-semibold">{item.name}</p>
@@ -314,6 +351,14 @@ function Dashboard() {
                   </li>
                 ))}
               </ul>
+              {data.topItemsData.length > 10 && (
+                <button
+                  onClick={() => setShowAllItems(!showAllItems)}
+                  className="mt-4 flex w-full items-center justify-center rounded-xl bg-secondary/50 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-secondary"
+                >
+                  {showAllItems ? "Show Less" : "Show More"}
+                </button>
+              )}
             </Panel>
           )}
 
@@ -321,29 +366,34 @@ function Dashboard() {
             <SectionHeader title="Recent Orders" subtitle="Latest tickets" />
             <ul className="divide-y divide-border">
               {data.recentOrdersData.map((o) => (
-                <li key={o.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-2.5">
-                  <div className="min-w-0">
-                    <p className="truncate text-[13px] font-semibold">{o.id}</p>
-                    <p className="truncate text-[11px] text-muted-foreground">
-                      {o.table} · {o.type} · {o.payment}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-[13px] font-bold">{currency(o.amount)}</p>
-                    <Chip
-                      tone={
-                        o.status === "Completed"
-                          ? "success"
-                          : o.status === "Cancelled"
-                            ? "danger"
-                            : o.status === "Pending"
-                              ? "warn"
-                              : "aqua"
-                      }
-                    >
-                      {o.status}
-                    </Chip>
-                  </div>
+                <li key={o.id}>
+                  <button 
+                    onClick={() => setSelectedInvoiceId(o.id)}
+                    className="w-full text-left grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-2.5 hover:bg-secondary/20 transition-colors rounded-lg px-2 -mx-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-semibold">{o.id}</p>
+                      <p className="truncate text-[11px] text-muted-foreground">
+                        {o.table} · {o.type} · {o.payment}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-[13px] font-bold">{currency(o.amount)}</p>
+                      <Chip
+                        tone={
+                          o.status === "Completed"
+                            ? "success"
+                            : o.status === "Cancelled"
+                              ? "danger"
+                              : o.status === "Pending"
+                                ? "warn"
+                                : "aqua"
+                        }
+                      >
+                        {o.status}
+                      </Chip>
+                    </div>
+                  </button>
                 </li>
               ))}
               {data.recentOrdersData.length === 0 && (
@@ -379,5 +429,60 @@ function Dashboard() {
         </div>
       )}
     </Shell>
+      <Drawer open={!!selectedInvoiceId} onOpenChange={(open) => !open && setSelectedInvoiceId(null)}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Invoice {selectedInvoiceId}</DrawerTitle>
+            <DrawerDescription>Order Details</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 overflow-y-auto">
+            {invoiceDetails ? (
+              <div className="space-y-4 pb-4">
+                <div className="flex justify-between text-[13px] text-muted-foreground uppercase">
+                  <span>Table: {invoiceDetails.tableId || "Takeaway"}</span>
+                  <span>Status: {invoiceDetails.status}</span>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-[14px] font-semibold">Items</h4>
+                  <ul className="divide-y divide-border">
+                    {invoiceDetails.items.map((item: any) => (
+                      <li key={item.id} className="py-2.5 flex justify-between text-[13px]">
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-[11px] text-muted-foreground">{item.quantity} x {currency(item.price)}</p>
+                        </div>
+                        <p className="font-semibold">{currency(item.amount)}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex justify-between text-[15px] font-bold pt-3 border-t border-border">
+                  <span>Total</span>
+                  <span className="text-primary">{currency(invoiceDetails.grandTotal)}</span>
+                </div>
+                {invoiceDetails.paymentSplits?.length > 0 && (
+                  <div className="space-y-1 pt-3 border-t border-border">
+                    <h4 className="text-[12px] font-semibold text-muted-foreground uppercase">Payment Method</h4>
+                    {invoiceDetails.paymentSplits.map((split: any, idx: number) => (
+                      <div key={idx} className="flex justify-between text-[13px] font-medium">
+                        <span>{split.paymentMode}</span>
+                        <span>{currency(split.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-[13px] text-muted-foreground">Loading details...</div>
+            )}
+          </div>
+          <DrawerFooter className="pt-2">
+            <DrawerClose asChild>
+              <button className="press rounded-xl bg-secondary py-3 text-[13px] font-bold text-foreground">Close</button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }

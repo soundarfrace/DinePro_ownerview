@@ -79,6 +79,7 @@ function Reports() {
     prevKpisData: null as any,
     categoryMixData: [] as any[],
     hourlyEfficiencyData: [] as any[],
+    orderTypeMixData: [] as any[],
   });
 
   useEffect(() => {
@@ -156,7 +157,8 @@ function Reports() {
           fetch(`${baseUrl}/dashboard/kpis?${queryParams}`).then(res => res.json()),
           fetch(`${baseUrl}/dashboard/revenue?${queryParams}`).then(res => res.json()),
           fetch(`${baseUrl}/dashboard/category-mix?${queryParams}`).then(res => res.json()),
-          fetch(`${baseUrl}/dashboard/hourly-efficiency?${queryParams}`).then(res => res.json())
+          fetch(`${baseUrl}/dashboard/hourly-efficiency?${queryParams}`).then(res => res.json()),
+          fetch(`${baseUrl}/dashboard/order-type-mix?${queryParams}`).then(res => res.json())
         ];
 
         if (compareMode) {
@@ -172,7 +174,7 @@ function Reports() {
           );
         }
 
-        const [kpisRes, revRes, catMixRes, hourlyEffRes, prevKpisRes, prevRevRes] = await Promise.all(promises);
+        const [kpisRes, revRes, catMixRes, hourlyEffRes, orderTypeMixRes, prevKpisRes, prevRevRes] = await Promise.all(promises);
         
         setData({
           kpisData: kpisRes.data || {},
@@ -181,6 +183,7 @@ function Reports() {
           prevRevenueData: prevRevRes?.data?.daily || [],
           categoryMixData: catMixRes?.data || [],
           hourlyEfficiencyData: hourlyEffRes?.data || [],
+          orderTypeMixData: orderTypeMixRes?.data || [],
         });
       } catch (e) {
         console.error(e);
@@ -305,6 +308,21 @@ function Reports() {
                 <Legend
                   items={data.categoryMixData.map((d: any) => ({
                     label: d.category,
+                    value: currency(d.revenue),
+                  }))}
+                />
+              </div>
+            </Panel>
+          )}
+
+          {data.orderTypeMixData?.length > 0 && (
+            <Panel>
+              <SectionHeader title="Order Types" subtitle="Revenue by order type" />
+              <div className="mt-2">
+                <DonutChart data={data.orderTypeMixData} nameKey="orderType" valueKey="revenue" />
+                <Legend
+                  items={data.orderTypeMixData.map((d: any) => ({
+                    label: d.orderType,
                     value: currency(d.revenue),
                   }))}
                 />
