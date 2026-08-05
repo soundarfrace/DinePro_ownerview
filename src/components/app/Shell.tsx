@@ -50,7 +50,10 @@ export function Shell({
         </div>
         <div className="flex shrink-0 items-center gap-2">
 
-          <div className="press bg-gradient-gold grid size-10 place-items-center rounded-2xl text-sm font-bold text-primary-foreground">
+          <div 
+            className="press bg-gradient-gold grid size-10 place-items-center rounded-2xl text-sm font-bold text-primary-foreground cursor-pointer hover:opacity-90"
+            onClick={() => window.location.reload()}
+          >
             {initials}
           </div>
         </div>

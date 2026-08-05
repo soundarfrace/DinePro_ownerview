@@ -18,6 +18,7 @@ import {
   Crown,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { Shell } from "@/components/app/Shell";
 import {
   Bar,
@@ -108,6 +109,8 @@ const exportToCSV = (filename: string, rows: Record<string, any>[]) => {
 function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showAllItems, setShowAllItems] = useState(false);
+  const [showAllOrders, setShowAllOrders] = useState(false);
+  const [orderTypeFilter, setOrderTypeFilter] = useState<string>("All");
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [invoiceDetails, setInvoiceDetails] = useState<any>(null);
   const [filter, setFilter] = useState<DateFilterValue>("today");
@@ -364,8 +367,26 @@ function Dashboard() {
 
           <Panel>
             <SectionHeader title="Recent Orders" subtitle="Latest tickets" />
+            
+            <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-2 px-2">
+              {["All", ...Array.from(new Set(data.recentOrdersData.map((o: any) => o.type).filter(Boolean)))].map(type => (
+                <button
+                  key={type as string}
+                  onClick={() => setOrderTypeFilter(type as string)}
+                  className={cn(
+                    "whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-semibold transition-colors",
+                    orderTypeFilter === type
+                      ? "bg-foreground text-background"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  )}
+                >
+                  {type === "All" ? "All Orders" : String(type).charAt(0).toUpperCase() + String(type).slice(1)}
+                </button>
+              ))}
+            </div>
+
             <ul className="divide-y divide-border">
-              {data.recentOrdersData.map((o) => (
+              {data.recentOrdersData.filter(o => orderTypeFilter === "All" || o.type === orderTypeFilter).slice(0, showAllOrders ? undefined : 5).map((o) => (
                 <li key={o.id}>
                   <button 
                     onClick={() => setSelectedInvoiceId(o.id)}
@@ -396,10 +417,18 @@ function Dashboard() {
                   </button>
                 </li>
               ))}
-              {data.recentOrdersData.length === 0 && (
+              {data.recentOrdersData.filter(o => orderTypeFilter === "All" || o.type === orderTypeFilter).length === 0 && (
                 <p className="text-[13px] text-muted-foreground py-2">No recent orders found.</p>
               )}
             </ul>
+            {data.recentOrdersData.filter(o => orderTypeFilter === "All" || o.type === orderTypeFilter).length > 5 && (
+              <button
+                onClick={() => setShowAllOrders(!showAllOrders)}
+                className="mt-4 flex w-full items-center justify-center rounded-xl bg-secondary/50 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-secondary"
+              >
+                {showAllOrders ? "Show Less" : "Show More"}
+              </button>
+            )}
           </Panel>
           
           <Panel>
