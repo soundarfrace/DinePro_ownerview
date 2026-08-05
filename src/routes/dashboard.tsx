@@ -16,6 +16,8 @@ import {
   Users,
   UtensilsCrossed,
   Crown,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -357,9 +359,13 @@ function Dashboard() {
               {data.topItemsData.length > 10 && (
                 <button
                   onClick={() => setShowAllItems(!showAllItems)}
-                  className="mt-4 flex w-full items-center justify-center rounded-xl bg-secondary/50 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-secondary"
+                  className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-secondary/50 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-secondary"
                 >
-                  {showAllItems ? "Show Less" : "Show More"}
+                  {showAllItems ? (
+                    <>Show Less <ChevronUp className="size-4" /></>
+                  ) : (
+                    <>Show More <ChevronDown className="size-4" /></>
+                  )}
                 </button>
               )}
             </Panel>
@@ -424,9 +430,13 @@ function Dashboard() {
             {data.recentOrdersData.filter(o => orderTypeFilter === "All" || o.type === orderTypeFilter).length > 5 && (
               <button
                 onClick={() => setShowAllOrders(!showAllOrders)}
-                className="mt-4 flex w-full items-center justify-center rounded-xl bg-secondary/50 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-secondary"
+                className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-secondary/50 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-secondary"
               >
-                {showAllOrders ? "Show Less" : "Show More"}
+                {showAllOrders ? (
+                  <>Show Less <ChevronUp className="size-4" /></>
+                ) : (
+                  <>Show More <ChevronDown className="size-4" /></>
+                )}
               </button>
             )}
           </Panel>
